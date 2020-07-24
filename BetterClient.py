@@ -7,6 +7,12 @@ username = ''
 ip = ''
 client = None
 
+last = open('./Client/latest.dat', 'r')
+latest = last.readlines()
+last.close()
+print(len(latest))
+print(latest)
+
 class con:
 
 	def __init__(self):
@@ -35,11 +41,23 @@ class con:
 		if ((len(username) > 0) and (len(ip) > 0)):
 			client = Client(ip, username)
 			print('Connected to {} as {}.'.format(ip, username))
+			messages.insert(INSERT, 'Connected to {} as {}.\n\n'.format(ip, username))
+			messages.see(END)
+			client.sendMsg('{} joined the chat.')
+			last = open('./Client/latest.dat', 'w')
+			last.write(str(ip) + '\n')
+			last.write(username)
 			self.root.destroy()
 			#threading.Thread(target=client.work)
 
-def addd():
-	mylist.insert(END, "tdsdsadsahjdsa")
+def recon():
+	global client
+	client = Client(latest[0].strip(), latest[1].strip())
+	print('Connected to {} as {}.'.format(latest[0].strip(), latest[1].strip()))
+	messages.insert(INSERT, 'Connected to {} as {}.\n\n'.format(latest[0].strip(), latest[1].strip()))
+	client.sendMsg('joined server')
+	messages.see(END)
+
 
 window = Tk()
 input_user = StringVar()
@@ -56,13 +74,15 @@ sb.config( command = messages.yview )
 menubar = Menu(window)
 file = Menu(menubar, tearoff=0)
 file.add_command(label="Connect", command=con)
+if len(latest) == 2:
+	file.add_command(label="Reconnect", command=recon)
 file.add_command(label="Exit", command=window.quit) 
 menubar.add_cascade(label="File", menu=file)
 window.config(menu=menubar) 
 
-input_user = StringVar()
-input_field = Entry(window, text=input_user)
-input_field.pack(side=BOTTOM, fill=X)
+#input_user = StringVar()
+#input_field = Entry(window, text=input_user)
+#input_field.pack(side=BOTTOM, fill=X)
 
 def Enter_pressed(event):
 	input_get = input_field.get()

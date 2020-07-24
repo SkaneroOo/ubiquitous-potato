@@ -2,10 +2,7 @@ import socket
 import threading
 import sys
 
-chatlog = []
 
-log = open('./logs/chat.log', 'ab+')
-chatlog = log.readlines()
 
 class Server:
 	
@@ -23,14 +20,10 @@ class Server:
 			cThread.start()
 			self.connections.append(c)
 			print(str(a[0]) + ':' + str(a[1]) + 'connected')
-			for data in chatlog[-50:]:
-				c.send(bytes(data))
 
 	def handler(self, c, a):
 		while True:
 			data = c.recv(5120)
-			log.write(data)
-			chatlog.append(data)
 			for connection in self.connections:
 				connection.send(bytes(data))
 			if not data:
