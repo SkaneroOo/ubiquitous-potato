@@ -2,16 +2,28 @@ import socket
 import threading
 import sys
 from tkinter import *
+import json
 
 username = ''
 ip = ''
 client = None
 
-last = open('./Client/latest.dat', 'r')
-latest = last.readlines()
-last.close()
-print(len(latest))
-print(latest)
+with open('./Client/latest.json') as json_file:
+	latest = json.load(json_file)
+
+def addd(new_data):
+	global latest
+	if new_data in latest:
+		pass
+	else:
+		if len(latest) == 10:
+			latest.remove(latest[-1])
+		latest = [new_data] + latest
+		with open('./Client/latest.json', 'w') as outfile:
+			json.dump(latest, outfile)
+
+
+
 
 class con:
 
@@ -43,18 +55,16 @@ class con:
 			print('Connected to {} as {}.'.format(ip, username))
 			messages.insert(INSERT, 'Connected to {} as {}.\n\n'.format(ip, username))
 			messages.see(END)
-			client.sendMsg('{} joined the chat.')
-			last = open('./Client/latest.dat', 'w')
-			last.write(str(ip) + '\n')
-			last.write(username)
+			client.sendMsg('joined the chat.')
+			addd((ip, username))
 			self.root.destroy()
 			#threading.Thread(target=client.work)
 
-def recon():
+def recon(conn):
 	global client
-	client = Client(latest[0].strip(), latest[1].strip())
-	print('Connected to {} as {}.'.format(latest[0].strip(), latest[1].strip()))
-	messages.insert(INSERT, 'Connected to {} as {}.\n\n'.format(latest[0].strip(), latest[1].strip()))
+	client = Client(conn[0], conn[1])
+	print('Connected to {} as {}.'.format(conn[0], conn[1]))
+	messages.insert(INSERT, 'Connected to {} as {}.\n\n'.format(conn[0], conn[1]))
 	client.sendMsg('joined server')
 	messages.see(END)
 
@@ -64,20 +74,22 @@ input_user = StringVar()
 input_field = Entry(window, text=input_user)
 input_field.pack(side=BOTTOM, fill=X)
 sb = Scrollbar(window) 
-sb.pack(side = RIGHT, fill = Y)
 messages = Text(window)
+sb.pack(side = RIGHT, fill = Y)
 messages.pack()
 
 
 sb.config( command = messages.yview )
 
 menubar = Menu(window)
-file = Menu(menubar, tearoff=0)
-file.add_command(label="Connect", command=con)
-if len(latest) == 2:
-	file.add_command(label="Reconnect", command=recon)
-file.add_command(label="Exit", command=window.quit) 
-menubar.add_cascade(label="File", menu=file)
+
+menubar.add_command(label="Connect", command=con)
+if len(latest) > 0:
+	reco = Menu(menubar, tearoff=0)
+	for item in latest:
+		reco.add_command(label='As {} to {}'.format(item[1], item[0]), command=lambda: recon(item))
+	menubar.add_cascade(label="Reconnect", menu=reco)
+menubar.add_command(label="Exit", command=window.quit) 
 window.config(menu=menubar) 
 
 #input_user = StringVar()
