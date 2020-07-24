@@ -1,1 +1,1 @@
-<img src='https://pcdn.columbian.com/wp-content/uploads/2018/06/0622_WKD_Market-Fresh-new-potatoes-1226x0-c-default.jpg' width= "200" align= "right" display= "block" margin= "auto" />
+<img src='https://pcdn.columbian.com/wp-content/uploads/2018/06/0622_WKD_Market-Fresh-new-potatoes-1226x0-c-default.jpg'/>
