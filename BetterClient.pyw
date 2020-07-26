@@ -131,7 +131,7 @@ class Client:
 	def work(self):
 		while True:
 
-			data = self.sock.recv(5120)
+			data = self.sock.recv(1024)
 			if not data:
 				break
 			data = str(data, 'utf-8')

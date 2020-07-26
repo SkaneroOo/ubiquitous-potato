@@ -3,6 +3,8 @@ import threading
 import sys
 from tkinter import *
 import json
+import time
+from functools import partial
 
 username = ''
 ip = ''
@@ -55,7 +57,7 @@ class con:
 			print('Connected to {} as {}.'.format(ip, username))
 			messages.insert(INSERT, 'Connected to {} as {}.\n\n'.format(ip, username))
 			messages.see(END)
-			client.sendMsg('joined the chat.')
+			client.sendMsg('/JOIN ' + username)
 			addd((ip, username))
 			self.root.destroy()
 			#threading.Thread(target=client.work)
@@ -63,9 +65,10 @@ class con:
 def recon(conn):
 	global client
 	client = Client(conn[0], conn[1])
+
 	print('Connected to {} as {}.'.format(conn[0], conn[1]))
 	messages.insert(INSERT, 'Connected to {} as {}.\n\n'.format(conn[0], conn[1]))
-	client.sendMsg('joined server')
+	client.sendMsg('/JOIN ' + conn[1])
 	messages.see(END)
 
 
@@ -87,7 +90,7 @@ menubar.add_command(label="Connect", command=con)
 if len(latest) > 0:
 	reco = Menu(menubar, tearoff=0)
 	for item in latest:
-		reco.add_command(label='As {} to {}'.format(item[1], item[0]), command=lambda: recon(item))
+		reco.add_command(label='As {} to {}'.format(item[1], item[0]), command=partial(recon, item))
 	menubar.add_cascade(label="Reconnect", menu=reco)
 menubar.add_command(label="Exit", command=window.quit) 
 window.config(menu=menubar) 
@@ -116,7 +119,7 @@ class Client:
 	
 
 	def sendMsg(self, mes):
-		self.sock.send(bytes(str([self.name, mes]), 'utf-8'))
+		self.sock.send(bytes(str(mes), 'utf-8'))
 
 	def __init__(self, address, username):
 		self.name = username
@@ -131,19 +134,20 @@ class Client:
 	def work(self):
 		while True:
 
-			data = self.sock.recv(5120)
+			data = self.sock.recv(1024)
 			if not data:
 				break
 			data = str(data, 'utf-8')
-			data = eval(data)
-			user, data = data[0], data[1]
-			if len(user)>7:
-				user += '\t'
-			else:
-				user += '\t\t'
-			messages.insert(INSERT, user + str(data) + '\n\n')
+			#data = eval(data)
+			#user, data = data[0], data[1]
+			#if len(user)>7:
+			#	user += '\t'
+			#else:
+			#	user += '\t\t'
+			#messages.insert(INSERT, user + str(data) + '\n\n')
+			messages.insert(INSERT, str(data) + '\n\n')
 			messages.see(END)
-			#return user + str(data)
+
 
 
 
